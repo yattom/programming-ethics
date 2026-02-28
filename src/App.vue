@@ -6,6 +6,7 @@
         :nodes="map.nodes"
         :selected-node-id="selectedNodeId"
         @node-selected="onNodeSelected"
+        @remove-point="removePoint"
       />
       <div class="sidebar">
         <NodeDescription :node="selectedNode" :error="errorMessage" />
@@ -16,6 +17,7 @@
           @start="startDistribution"
           @add-to-p="addToP"
           @add-point="addPoint"
+          @remove-point="removePoint"
           @reset="reset"
           @copy-url="copyUrl"
         />
@@ -60,6 +62,15 @@ function addPoint(nodeId) {
   const ok = map.addPoint(nodeId)
   if (!ok) {
     errorMessage.value = 'ポイントを追加できません。親ノードのポイントが不足しているか、Pのポイントが0です。'
+  } else {
+    errorMessage.value = null
+  }
+}
+
+function removePoint(nodeId) {
+  const ok = map.removePoint(nodeId)
+  if (!ok) {
+    errorMessage.value = 'ポイントを減らせません。子ノードのポイントが残っているか、ポイントが0です。'
   } else {
     errorMessage.value = null
   }

@@ -30,6 +30,36 @@ test('UC004: マップ状態をURLで保存・共有できる', async ({ page })
   await expect(page.locator('[data-testid="reset"]')).toBeVisible()
 })
 
+test('UC005: ポイントを減らすボタンでポイントが減る', async ({ page }) => {
+  await page.goto('/')
+  await page.locator('[data-testid="start-distribution"]').click()
+
+  // N0を選択してポイントを追加
+  await page.locator('[data-testid="node-N0"]').click()
+  await page.locator('[data-testid="add-point"]').click()
+  await expect(page.locator('[data-testid="node-N0"]')).toContainText('1')
+
+  // -1ボタンでポイントを減らす
+  await page.locator('[data-testid="remove-point"]').click()
+  await expect(page.locator('[data-testid="node-N0"]')).not.toContainText('1')
+  await expect(page.locator('[data-testid="p-points"]')).toContainText('10')
+})
+
+test('UC006: トークンをクリックするとポイントが減る', async ({ page }) => {
+  await page.goto('/')
+  await page.locator('[data-testid="start-distribution"]').click()
+
+  // N0を選択してポイントを追加
+  await page.locator('[data-testid="node-N0"]').click()
+  await page.locator('[data-testid="add-point"]').click()
+  await expect(page.locator('[data-testid="node-N0"]')).toContainText('1')
+
+  // トークンをクリックしてポイントを減らす
+  await page.locator('[data-testid="token-N0-1"]').click()
+  await expect(page.locator('[data-testid="node-N0"]')).not.toContainText('1')
+  await expect(page.locator('[data-testid="p-points"]')).toContainText('10')
+})
+
 test('UC003: ポイントを配布してマップを作る', async ({ page }) => {
   await page.goto('/')
 
