@@ -126,17 +126,20 @@ const NODE_COLORS = {
   'N1-3': '#e9d5ff', 'N2-5': '#a855f7', 'N2-6': '#c084fc',
 }
 
+const r01 = Math.round((r0 + r1) / 2)
+const r12 = Math.round((r1 + r2) / 2)
+
 const NODE_POSITIONS = {
   'N0':   { x: cx, y: cy },
-  'N1-1': clockPos(12, r1),
-  'N1-2': clockPos(4,  r1),
-  'N1-3': clockPos(8,  r1),
-  'N2-1': clockPos(11, r2),
-  'N2-2': clockPos(1,  r2),
-  'N2-3': clockPos(3,  r2),
-  'N2-4': clockPos(5,  r2),
-  'N2-5': clockPos(7,  r2),
-  'N2-6': clockPos(9,  r2),
+  'N1-1': clockPos(12, r01),
+  'N1-2': clockPos(4,  r01),
+  'N1-3': clockPos(8,  r01),
+  'N2-1': clockPos(11, r12),
+  'N2-2': clockPos(1,  r12),
+  'N2-3': clockPos(3,  r12),
+  'N2-4': clockPos(5,  r12),
+  'N2-5': clockPos(7,  r12),
+  'N2-6': clockPos(9,  r12),
 }
 
 const NODE_ARCS = {
