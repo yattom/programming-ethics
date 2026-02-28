@@ -44,10 +44,13 @@
         <circle
           v-for="i in node.points"
           :key="i"
+          :data-testid="`token-${node.id}-${i}`"
           :cx="tokenX(i, node.points)"
           cy="-28"
           r="4"
           fill="#555"
+          style="cursor: pointer"
+          @click.stop="$emit('remove-point', node.id)"
         />
       </g>
 
@@ -80,7 +83,7 @@ const props = defineProps({
   selectedNodeId: { type: String, default: null },
 })
 
-defineEmits(['node-selected'])
+defineEmits(['node-selected', 'remove-point'])
 
 const size = 440
 const cx = 220

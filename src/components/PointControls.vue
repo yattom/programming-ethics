@@ -18,6 +18,13 @@
       >
         {{ selectedNodeId }} に +1
       </button>
+      <button
+        v-if="selectedNodeId && selectedNodeId !== 'P'"
+        data-testid="remove-point"
+        @click="$emit('remove-point', selectedNodeId)"
+      >
+        {{ selectedNodeId }} に -1
+      </button>
       <button data-testid="reset" @click="showConfirm = true">リセット</button>
 
       <div class="share-section">
@@ -48,7 +55,7 @@ defineProps({
   selectedNodeId: { type: String, default: null },
 })
 
-const emit = defineEmits(['start', 'add-to-p', 'add-point', 'reset', 'copy-url'])
+const emit = defineEmits(['start', 'add-to-p', 'add-point', 'remove-point', 'reset', 'copy-url'])
 const showConfirm = ref(false)
 const userName = ref('')
 const copyLabel = ref('URLをコピー')
