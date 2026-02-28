@@ -11,7 +11,14 @@ NOTICE: TODOリストはフラットな箇条書きで、着手順に上から�
 - [x] テスト方針ドキュメントを作成 (docs/test-design.md)
 - [x] 必要なモジュールをインストール
 - [x] 本TODOリストに項目を加えながら全体の実装計画を作る
-- [ ] EthicsMap モデルを実装する (src/model/EthicsMap.js) + vitest ユニットテスト
+- [x] EthicsMap: Pノード・N0・N1・N2の全ノードが存在する
+- [x] EthicsMap: 進化ライン (親子関係) が正しく定義されている
+- [x] EthicsMap: N0にポイントを割り振れる (上限はPのポイント)
+- [x] EthicsMap: N1ノードにポイントを割り振れる (上限は親N0のポイント)
+- [x] EthicsMap: N2ノードにポイントを割り振れる (上限は親N1のポイント)
+- [x] EthicsMap: ポイントを増やすとPのポイントが減り、減らすと戻る
+- [x] EthicsMap: Pのポイントが0のとき他のノードのポイントを増やせない
+- [x] EthicsMap: 子ノードのポイントを超える親の減少はできない
 - [ ] E2E テスト: UC001 トップページでマップが表示される (e2e/ethics-map.spec.js)
 - [ ] EthicsMapView コンポーネントを実装する (同心円レイアウト、ノード配置)
 - [ ] E2E テスト: UC002 ノード選択で説明が表示される
