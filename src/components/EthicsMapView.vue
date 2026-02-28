@@ -54,6 +54,28 @@
         />
       </g>
 
+      <!-- 選択ノード近くのポイント操作ボタン -->
+      <foreignObject
+        v-if="distributing && selectedMapNode"
+        :x="selectedMapNode.x - 35"
+        :y="selectedMapNode.y + 22"
+        width="72"
+        height="30"
+      >
+        <div style="display:flex;gap:4px;">
+          <button
+            data-testid="add-point"
+            style="font-size:12px;padding:2px 6px;cursor:pointer;"
+            @click.stop="$emit('add-point', selectedNodeId)"
+          >+1</button>
+          <button
+            data-testid="remove-point"
+            style="font-size:12px;padding:2px 6px;cursor:pointer;"
+            @click.stop="$emit('remove-point', selectedNodeId)"
+          >-1</button>
+        </div>
+      </foreignObject>
+
       <!-- Pノード (左側) -->
       <g
         :data-testid="`node-P`"
@@ -81,9 +103,10 @@ import { computed } from 'vue'
 const props = defineProps({
   nodes: { type: Array, required: true },
   selectedNodeId: { type: String, default: null },
+  distributing: { type: Boolean, default: false },
 })
 
-defineEmits(['node-selected', 'remove-point'])
+defineEmits(['node-selected', 'remove-point', 'add-point'])
 
 const size = 440
 const cx = 220
@@ -193,6 +216,10 @@ const pNode = computed(() => {
 function tokenX(i, total) {
   return (i - (total + 1) / 2) * 10
 }
+
+const selectedMapNode = computed(() =>
+  mapNodes.value.find(n => n.id === props.selectedNodeId)
+)
 </script>
 
 <style scoped>

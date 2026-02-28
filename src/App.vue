@@ -5,7 +5,9 @@
       <EthicsMapView
         :nodes="map.nodes"
         :selected-node-id="selectedNodeId"
+        :distributing="distributing"
         @node-selected="onNodeSelected"
+        @add-point="addPoint"
         @remove-point="removePoint"
       />
       <div class="sidebar">
@@ -13,11 +15,8 @@
         <PointControls
           :p-points="pNode.points"
           :distributing="distributing"
-          :selected-node-id="selectedNodeId"
           @start="startDistribution"
           @add-to-p="addToP"
-          @add-point="addPoint"
-          @remove-point="removePoint"
           @reset="reset"
           @copy-url="copyUrl"
         />

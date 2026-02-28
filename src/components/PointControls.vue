@@ -11,20 +11,6 @@
 
     <template v-else>
       <button data-testid="add-point-to-p" @click="$emit('add-to-p')">ポイント追加 (+5)</button>
-      <button
-        v-if="selectedNodeId && selectedNodeId !== 'P'"
-        data-testid="add-point"
-        @click="$emit('add-point', selectedNodeId)"
-      >
-        {{ selectedNodeId }} に +1
-      </button>
-      <button
-        v-if="selectedNodeId && selectedNodeId !== 'P'"
-        data-testid="remove-point"
-        @click="$emit('remove-point', selectedNodeId)"
-      >
-        {{ selectedNodeId }} に -1
-      </button>
       <button data-testid="reset" @click="showConfirm = true">リセット</button>
 
       <div class="share-section">
@@ -52,10 +38,9 @@ import { ref } from 'vue'
 defineProps({
   pPoints: { type: Number, required: true },
   distributing: { type: Boolean, required: true },
-  selectedNodeId: { type: String, default: null },
 })
 
-const emit = defineEmits(['start', 'add-to-p', 'add-point', 'remove-point', 'reset', 'copy-url'])
+const emit = defineEmits(['start', 'add-to-p', 'reset', 'copy-url'])
 const showConfirm = ref(false)
 const userName = ref('')
 const copyLabel = ref('URLをコピー')
