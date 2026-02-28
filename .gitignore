@@ -1,0 +1,236 @@
+# ==============================
+# Generic .gitignore (multi‑stack)
+# Generated: 2025-12-10
+# ==============================
+
+/branches/
+/.playwright-mcp/
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Node / Frontend
+node_modules/
+bower_components/
+dist/
+build/
+out/
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+.cache/
+coverage/
+lcov.info
+.nyc_output/
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+
+# Java / Kotlin / JVM
+target/
+bin/
+obj/
+*.class
+.gradle/
+build/
+.mvn/
+.settings/
+.classpath
+.project
+
+# .NET
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+# packages/  # Commented out - conflicts with pnpm workspace packages/
+TestResult*/
+TestResults/
+
+# Ruby
+.bundle/
+vendor/bundle/
+.ruby-version
+.ruby-gemset
+
+# Go
+vendor/
+*.test
+coverage.out
+
+# Rust
+target/
+
+# PHP / Composer
+vendor/
+composer.lock
+
+# Swift / Xcode
+DerivedData/
+*.xcworkspace
+*.xcuserdata/
+*.xccheckout
+*.moved-aside
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# Android / IntelliJ
+local.properties
+.cxx/
+captures/
+.externalNativeBuild/
+
+# iOS / CocoaPods / Carthage / fastlane
+Pods/
+Carthage/
+.fastlane/
+
+# Editors & IDEs
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# JetBrains IDEs (IntelliJ, Rider, PyCharm, WebStorm, Android Studio)
+# Reference: https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+# The following provides fine-grained ignore rules so useful project files in .idea/ (e.g., codeStyles, runConfigurations, vcs.xml) can be committed.
+
+# User-specific and high-churn files
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# AWS plugin configuration
+.idea/**/aws.xml
+
+# Generated content model
+.idea/**/contentModel.xml
+
+# Datasource files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+
+# UI Designer
+.idea/**/uiDesigner.xml
+
+# Database Navigator plugin
+.idea/**/dbnavigator.xml
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# Mongo Explorer plugin
+.idea/**/mongoSettings.xml
+
+# Editor-based HTTP client requests
+.idea/httpRequests
+
+# Android Studio 3.1+ serialized cache file
+.idea/caches/build_file_checksums.ser
+
+# CMake build
+cmake-build-*/
+
+# SonarLint plugin
+.idea/**/sonarlint/
+
+# Markdown Navigator plugin
+.idea/**/markdown-navigator.xml
+.idea/**/markdown-navigator/
+
+# File-based project format
+*.iws
+
+# IntelliJ out directory
+out/
+
+# Legacy/third-party plugins
+.idea_modules/
+atlassian-ide-plugin.xml
+
+# Crashlytics plugin
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# Docker
+.docker/
+docker-data/
+docker-compose.override.yml
+
+# LocalStack data
+localstack-data/
+
+# AWS CDK
+.cdk.staging/
+cdk.out/
+infra/cdk/cdk.out/
+!infra/cdk/bin/
+
+# Archives
+*.7z
+*.gz
+*.zip
+*.tar
+*.tgz
+*.rar
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+*.bak
+
+# Keep intentionally empty directories
+!.gitkeep
+/tts.b64
+/tts.mp3
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
