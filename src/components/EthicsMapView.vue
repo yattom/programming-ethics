@@ -1,6 +1,6 @@
 <template>
   <div data-testid="ethics-map">
-    <svg :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
+    <svg :width="svgWidth" :height="svgHeight" :viewBox="`0 0 ${svgWidth} ${svgHeight}`">
       <!-- ポイントに応じた色の濃淡 (ノードの背後) -->
       <!-- N0: 中央円を塗りつぶし -->
       <circle
@@ -21,6 +21,18 @@
       <circle :cx="cx" :cy="cy" :r="r0" fill="none" stroke="#bbb" stroke-width="1" />
       <circle :cx="cx" :cy="cy" :r="r1" fill="none" stroke="#bbb" stroke-width="1" />
       <circle :cx="cx" :cy="cy" :r="r2" fill="none" stroke="#bbb" stroke-width="1" />
+
+      <!-- 進化リンク (親から子への接続線) -->
+      <line
+        v-for="link in EVOLUTION_LINKS"
+        :key="`${link.from}-${link.to}`"
+        :x1="NODE_POSITIONS[link.from].x"
+        :y1="NODE_POSITIONS[link.from].y"
+        :x2="NODE_POSITIONS[link.to].x"
+        :y2="NODE_POSITIONS[link.to].y"
+        stroke="#bbb"
+        stroke-width="1.5"
+      />
 
       <!-- ノード -->
       <g
@@ -80,16 +92,18 @@
       <g
         :data-testid="`node-P`"
         :transform="`translate(${pNode.x}, ${pNode.y})`"
-        style="cursor: default"
+        class="p-node"
+        :class="{ selected: selectedNodeId === 'P' }"
+        style="cursor: pointer"
+        @click="$emit('node-selected', 'P')"
       >
-        <rect x="-18" y="-40" width="36" height="80" rx="6" :fill="pNode.color" stroke="#999" stroke-width="1.5" />
-        <text text-anchor="middle" y="55" font-size="10" fill="#555">P</text>
+        <rect x="-45" y="-100" width="90" height="200" rx="12" :fill="pNode.color" stroke="#999" stroke-width="1.5" />
         <circle
           v-for="i in Math.min(pNode.points, 10)"
           :key="i"
           :cx="0"
-          :cy="-50 - (i - 1) * 10"
-          r="4"
+          :cy="-80 + (i - 1) * 17"
+          r="5"
           fill="#555"
         />
       </g>
@@ -108,8 +122,9 @@ const props = defineProps({
 
 defineEmits(['node-selected', 'remove-point', 'add-point'])
 
-const size = 440
-const cx = 220
+const svgWidth = 600
+const svgHeight = 440
+const cx = 330
 const cy = 220
 const r0 = 55
 const r1 = 125
@@ -160,12 +175,12 @@ const NODE_POSITIONS = {
   'N1-1': clockPos(12, r01),
   'N1-2': clockPos(4,  r01),
   'N1-3': clockPos(8,  r01),
-  'N2-1': clockPos(11, r12),
-  'N2-2': clockPos(1,  r12),
-  'N2-3': clockPos(3,  r12),
-  'N2-4': clockPos(5,  r12),
-  'N2-5': clockPos(7,  r12),
-  'N2-6': clockPos(9,  r12),
+  'N2-1': clockPos(11.4, r12),
+  'N2-2': clockPos(0.6,  r12),
+  'N2-3': clockPos(3.4,  r12),
+  'N2-4': clockPos(4.6,  r12),
+  'N2-5': clockPos(7.4,  r12),
+  'N2-6': clockPos(8.6,  r12),
 }
 
 const NODE_ARCS = {
@@ -179,6 +194,18 @@ const NODE_ARCS = {
   'N2-5': { innerR: r1, outerR: r2, startH: 6,  endH: 8  },
   'N2-6': { innerR: r1, outerR: r2, startH: 8,  endH: 10 },
 }
+
+const EVOLUTION_LINKS = [
+  { from: 'N0', to: 'N1-1' },
+  { from: 'N0', to: 'N1-2' },
+  { from: 'N0', to: 'N1-3' },
+  { from: 'N1-1', to: 'N2-1' },
+  { from: 'N1-1', to: 'N2-2' },
+  { from: 'N1-2', to: 'N2-3' },
+  { from: 'N1-2', to: 'N2-4' },
+  { from: 'N1-3', to: 'N2-5' },
+  { from: 'N1-3', to: 'N2-6' },
+]
 
 function pointOpacity(points) {
   return Math.min(points / 5, 1) * 0.75
@@ -210,7 +237,7 @@ const mapNodes = computed(() =>
 
 const pNode = computed(() => {
   const p = props.nodes.find(n => n.id === 'P')
-  return { ...p, x: 30, y: cy, color: '#d1d5db' }
+  return { ...p, x: 65, y: cy, color: '#d1d5db' }
 })
 
 function tokenX(i, total) {
@@ -224,6 +251,10 @@ const selectedMapNode = computed(() =>
 
 <style scoped>
 .node.selected circle:first-child {
+  stroke: #1d4ed8;
+  stroke-width: 3;
+}
+.p-node.selected rect {
   stroke: #1d4ed8;
   stroke-width: 3;
 }
