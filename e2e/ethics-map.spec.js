@@ -60,6 +60,12 @@ test('UC006: トークンをクリックするとポイントが減る', async (
   await expect(page.locator('[data-testid="p-points"]')).toContainText('10')
 })
 
+test('UC007: Pノードをクリックすると説明パネルにPノードのタイトルが表示される', async ({ page }) => {
+  await page.goto('/')
+  await page.locator('[data-testid="node-P"]').click()
+  await expect(page.locator('[data-testid="node-description"]')).toContainText('利益優先')
+})
+
 test('UC003: ポイントを配布してマップを作る', async ({ page }) => {
   await page.goto('/')
 
