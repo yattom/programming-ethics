@@ -124,8 +124,10 @@ defineEmits(['node-selected', 'remove-point', 'add-point'])
 
 const svgWidth = 600
 const svgHeight = 440
-const cx = 330
-const cy = 220
+// 中央をやや右にずらして左側にPノード領域を確保するオフセット
+const CENTER_X_OFFSET = 30
+const cx = svgWidth / 2 + CENTER_X_OFFSET
+const cy = svgHeight / 2
 const r0 = 55
 const r1 = 125
 const r2 = 185
