@@ -53,17 +53,19 @@
           font-size="11"
           fill="#333"
         >{{ node.points }}</text>
-        <circle
+        <text
           v-for="i in node.points"
           :key="i"
           :data-testid="`token-${node.id}-${i}`"
-          :cx="tokenX(i, node.points)"
-          cy="-28"
-          r="4"
-          fill="#555"
+          :x="tokenX(i, node.points)"
+          y="-28"
+          text-anchor="middle"
+          dominant-baseline="central"
+          font-size="12"
+          fill="#e85d75"
           style="cursor: pointer"
           @click.stop="$emit('remove-point', node.id)"
-        />
+        >♥</text>
       </g>
 
       <!-- 選択ノード近くのポイント操作ボタン -->
@@ -98,14 +100,30 @@
         @click="$emit('node-selected', 'P')"
       >
         <rect x="-45" y="-100" width="90" height="200" rx="12" :fill="pNode.color" stroke="#999" stroke-width="1.5" />
-        <circle
-          v-for="i in Math.min(pNode.points, 10)"
-          :key="i"
-          :cx="0"
-          :cy="-80 + (i - 1) * 17"
-          r="5"
-          fill="#555"
-        />
+        <template v-if="distributing">
+          <text
+            v-for="i in Math.min(pNode.points, 10)"
+            :key="i"
+            x="0"
+            :y="-80 + (i - 1) * 17"
+            text-anchor="middle"
+            dominant-baseline="central"
+            font-size="12"
+            fill="#e85d75"
+          >♥</text>
+          <text
+            data-testid="p-points"
+            x="0"
+            y="90"
+            text-anchor="middle"
+            dominant-baseline="central"
+            font-size="14"
+            fill="white"
+            stroke="#333"
+            stroke-width="0.5"
+            paint-order="stroke"
+          >{{ pNode.points }}</text>
+        </template>
       </g>
     </svg>
   </div>
@@ -129,7 +147,7 @@ const CENTER_X_OFFSET = 30
 const cx = svgWidth / 2 + CENTER_X_OFFSET
 const cy = svgHeight / 2
 const r0 = 55
-const r1 = 125
+const r1 = 110
 const r2 = 185
 
 function clockPos(hours, radius) {
@@ -239,7 +257,11 @@ const mapNodes = computed(() =>
 
 const pNode = computed(() => {
   const p = props.nodes.find(n => n.id === 'P')
-  return { ...p, x: 65, y: cy, color: '#d1d5db' }
+  const maxPoints = 10
+  const ratio = Math.min(p.points / maxPoints, 1)
+  const gray = Math.round(192 * (1 - ratio))
+  const hex = gray.toString(16).padStart(2, '0')
+  return { ...p, x: 65, y: cy, color: `#${hex}${hex}${hex}` }
 })
 
 function tokenX(i, total) {

@@ -1,6 +1,6 @@
 <template>
   <main class="app">
-    <h1>プログラマーの倫理</h1>
+    <h1>プログラマー{{ userName }}の倫理</h1>
     <div class="layout">
       <EthicsMapView
         :nodes="map.nodes"
@@ -13,8 +13,8 @@
       <div class="sidebar">
         <NodeDescription :node="selectedNode" :error="errorMessage" />
         <PointControls
-          :p-points="pNode.points"
           :distributing="distributing"
+          v-model:user-name="userName"
           @start="startDistribution"
           @add-to-p="addToP"
           @reset="reset"
@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, computed, watch, onMounted } from 'vue'
 import { EthicsMap } from './model/EthicsMap.js'
 import { encodeMapState, decodeMapState } from './model/mapUrl.js'
 import EthicsMapView from './components/EthicsMapView.vue'
@@ -37,6 +37,7 @@ const map = reactive(new EthicsMap())
 const selectedNodeId = ref(null)
 const distributing = ref(false)
 const errorMessage = ref(null)
+const userName = ref('')
 
 const pNode = computed(() => map.nodes.find(n => n.id === 'P'))
 const selectedNode = computed(() =>
@@ -83,16 +84,24 @@ function reset() {
   errorMessage.value = null
 }
 
-function copyUrl(userName) {
-  const qs = encodeMapState(userName, map.nodes)
+function copyUrl() {
+  const qs = encodeMapState(userName.value, map.nodes)
   const url = `${location.origin}${location.pathname}?${qs}`
   navigator.clipboard.writeText(url)
 }
 
+watch(
+  () => encodeMapState(userName.value, map.nodes),
+  (qs) => {
+    history.replaceState(null, '', `?${qs}`)
+  }
+)
+
 onMounted(() => {
   const qs = location.search.slice(1)
   if (!qs) return
-  const { pPoints, nodePoints } = decodeMapState(qs)
+  const { name, pPoints, nodePoints } = decodeMapState(qs)
+  userName.value = name
   map.nodes.find(n => n.id === 'P').points = pPoints
   for (const [id, pts] of Object.entries(nodePoints)) {
     map.nodes.find(n => n.id === id).points = pts
