@@ -1,6 +1,16 @@
 <template>
   <div data-testid="ethics-map">
     <svg :width="svgWidth" :height="svgHeight" :viewBox="`0 0 ${svgWidth} ${svgHeight}`">
+      <defs>
+        <radialGradient id="heart-gradient" cx="38%" cy="28%" r="65%">
+          <stop offset="0%" stop-color="#ffcce0"/>
+          <stop offset="45%" stop-color="#e82563"/>
+          <stop offset="100%" stop-color="#8b0e35"/>
+        </radialGradient>
+        <filter id="heart-shadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0.5" dy="1" stdDeviation="0.8" flood-color="#00000050"/>
+        </filter>
+      </defs>
       <!-- ポイントに応じた色の濃淡 (ノードの背後) -->
       <!-- N0: 中央円を塗りつぶし -->
       <circle
@@ -53,19 +63,23 @@
           font-size="11"
           fill="#333"
         >{{ node.points }}</text>
-        <text
+        <g
           v-for="i in node.points"
           :key="i"
           :data-testid="`token-${node.id}-${i}`"
-          :x="tokenX(i, node.points)"
-          y="-28"
-          text-anchor="middle"
-          dominant-baseline="central"
-          font-size="12"
-          fill="#e85d75"
+          :transform="`translate(${tokenX(i, node.points)}, -28)`"
           style="cursor: pointer"
           @click.stop="$emit('remove-point', node.id)"
-        >♥</text>
+        >
+          <path
+            d="M 0,4 C -1.5,2.5 -6,2 -6,-1 C -6,-4 -3.5,-5.5 -1.5,-4.5 C -0.8,-4 0,-3 0,-2.5 C 0,-3 0.8,-4 1.5,-4.5 C 3.5,-5.5 6,-4 6,-1 C 6,2 1.5,2.5 0,4 Z"
+            fill="url(#heart-gradient)"
+            stroke="#8b0e35"
+            stroke-width="0.5"
+            filter="url(#heart-shadow)"
+          />
+          <ellipse cx="-1.8" cy="-2.8" rx="1.6" ry="0.9" fill="white" fill-opacity="0.45" transform="rotate(-25,-1.8,-2.8)"/>
+        </g>
       </g>
 
       <!-- 選択ノード近くのポイント操作ボタン -->
@@ -101,16 +115,20 @@
       >
         <rect x="-45" y="-100" width="90" height="200" rx="12" :fill="pNode.color" stroke="#999" stroke-width="1.5" />
         <template v-if="distributing">
-          <text
+          <g
             v-for="i in Math.min(pNode.points, 10)"
             :key="i"
-            x="0"
-            :y="-80 + (i - 1) * 17"
-            text-anchor="middle"
-            dominant-baseline="central"
-            font-size="12"
-            fill="#e85d75"
-          >♥</text>
+            :transform="`translate(0, ${-80 + (i - 1) * 17})`"
+          >
+            <path
+              d="M 0,4 C -1.5,2.5 -6,2 -6,-1 C -6,-4 -3.5,-5.5 -1.5,-4.5 C -0.8,-4 0,-3 0,-2.5 C 0,-3 0.8,-4 1.5,-4.5 C 3.5,-5.5 6,-4 6,-1 C 6,2 1.5,2.5 0,4 Z"
+              fill="url(#heart-gradient)"
+              stroke="#8b0e35"
+              stroke-width="0.5"
+              filter="url(#heart-shadow)"
+            />
+            <ellipse cx="-1.8" cy="-2.8" rx="1.6" ry="0.9" fill="white" fill-opacity="0.45" transform="rotate(-25,-1.8,-2.8)"/>
+          </g>
           <text
             data-testid="p-points"
             x="0"
