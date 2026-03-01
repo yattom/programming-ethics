@@ -10,6 +10,19 @@
         <filter id="heart-shadow" x="-30%" y="-30%" width="160%" height="160%">
           <feDropShadow dx="0.5" dy="1" stdDeviation="0.8" flood-color="#00000050"/>
         </filter>
+        <!-- 半径方向グラデーション定義 -->
+        <radialGradient
+          v-for="def in RADIAL_GRAD_DEFS"
+          :key="def.id"
+          :id="def.id"
+          :cx="cx"
+          :cy="cy"
+          :r="def.outerR"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop :offset="`${(def.innerR / def.outerR * 100).toFixed(1)}%`" :stop-color="def.innerColor" />
+          <stop offset="100%" :stop-color="def.outerColor" />
+        </radialGradient>
       </defs>
       <!-- ポイントに応じた色の濃淡 (ノードの背後) -->
       <!-- N0: 中央円を塗りつぶし -->
@@ -18,13 +31,13 @@
         :fill="NODE_COLORS['N0']"
         :fill-opacity="pointOpacity(n0Node.points)"
       />
-      <!-- N1, N2: 扇形セクター -->
+      <!-- N1, N2: 扇形セクター（半径方向グラデーション＋円周方向グラデーション＋境界ブレンド） -->
       <path
-        v-for="arc in arcFills"
-        :key="arc.id"
-        :d="arc.path"
-        :fill="arc.color"
-        :fill-opacity="pointOpacity(arc.points)"
+        v-for="slice in arcSlices"
+        :key="slice.key"
+        :d="slice.path"
+        :fill="slice.fill"
+        :fill-opacity="slice.opacity"
       />
 
       <!-- 同心円の境界線 -->
@@ -198,12 +211,53 @@ function annularSectorPath(innerR, outerR, startH, endH) {
   return `M ${ix1.toFixed(1)} ${iy1.toFixed(1)} A ${innerR} ${innerR} 0 ${large} 1 ${ix2.toFixed(1)} ${iy2.toFixed(1)} L ${ox2.toFixed(1)} ${oy2.toFixed(1)} A ${outerR} ${outerR} 0 ${large} 0 ${ox1.toFixed(1)} ${oy1.toFixed(1)} Z`
 }
 
-const NODE_COLORS = {
-  'N0':   '#fde68a',
-  'N1-1': '#fed7aa', 'N2-1': '#f97316', 'N2-2': '#fb923c',
-  'N1-2': '#bbf7d0', 'N2-3': '#22c55e', 'N2-4': '#4ade80',
-  'N1-3': '#e9d5ff', 'N2-5': '#a855f7', 'N2-6': '#c084fc',
+// 色定義（HSL）
+// N1-1: Safety（信頼・青）、N1-2: Agency（安心・緑）、N1-3: Privacy（個人・ローズ）
+const NODE_COLORS_HSL = {
+  'N0':   [45,  80, 88],
+  'N1-1': [205, 65, 84],
+  'N1-2': [140, 55, 84],
+  'N1-3': [325, 60, 84],
+  'N2-1': [200, 60, 74],
+  'N2-2': [218, 60, 74],
+  'N2-3': [140, 55, 74],
+  'N2-4': [158, 55, 74],
+  'N2-5': [315, 55, 74],
+  'N2-6': [340, 55, 74],
 }
+
+function nodeColorStr(id) {
+  const [h, s, l] = NODE_COLORS_HSL[id]
+  return `hsl(${h}, ${s}%, ${l}%)`
+}
+
+const NODE_COLORS = Object.fromEntries(
+  Object.keys(NODE_COLORS_HSL).map(id => [id, nodeColorStr(id)])
+)
+
+// 半径方向グラデーション定義（N0→N1、N1→N2）
+const PARENT_OF = {
+  'N2-1': 'N1-1', 'N2-2': 'N1-1',
+  'N2-3': 'N1-2', 'N2-4': 'N1-2',
+  'N2-5': 'N1-3', 'N2-6': 'N1-3',
+}
+
+const RADIAL_GRAD_DEFS = [
+  ...['N1-1', 'N1-2', 'N1-3'].map(id => ({
+    id: `rg-${id.toLowerCase()}`,
+    innerR: r0,
+    outerR: r1,
+    innerColor: nodeColorStr('N0'),
+    outerColor: nodeColorStr(id),
+  })),
+  ...['N2-1', 'N2-2', 'N2-3', 'N2-4', 'N2-5', 'N2-6'].map(id => ({
+    id: `rg-${id.toLowerCase()}`,
+    innerR: r1,
+    outerR: r2,
+    innerColor: nodeColorStr(PARENT_OF[id]),
+    outerColor: nodeColorStr(id),
+  })),
+]
 
 const r01 = Math.round((r0 + r1) / 2)
 const r12 = Math.round((r1 + r2) / 2)
@@ -249,19 +303,54 @@ function pointOpacity(points) {
   return Math.min(points / 5, 1) * 0.75
 }
 
-const n0Node = computed(() => props.nodes.find(n => n.id === 'N0'))
+// 円周方向グラデーション（スライス近似）+ 境界ブレンド（オーバーラップ）
+// 各扇形を ANGULAR_SLICES 枚の細い扇形に分割し、中央を濃く・端を薄く描く
+// 境界では隣の扇形とOVERLAP分だけ重なり、色が自然に混じり合う
+const ANGULAR_SLICES = 20
+const OVERLAP = 0.3  // 境界オーバーラップ（時間単位 ≈ 9度）
 
-const arcFills = computed(() =>
-  Object.entries(NODE_ARCS).map(([id, arc]) => {
-    const node = props.nodes.find(n => n.id === id)
+function makeArcSlices(id, arc, points) {
+  const baseOpacity = pointOpacity(points)
+  const midH = (arc.startH + arc.endH) / 2
+  const halfCore = (arc.endH - arc.startH) / 2
+  const extStartH = arc.startH - OVERLAP
+  const extEndH = arc.endH + OVERLAP
+  const sliceH = (extEndH - extStartH) / ANGULAR_SLICES
+
+  return Array.from({ length: ANGULAR_SLICES }, (_, i) => {
+    const s = extStartH + i * sliceH
+    const e = extStartH + (i + 1) * sliceH
+    const midSliceH = (s + e) / 2
+    const distFromMid = Math.abs(midSliceH - midH)
+
+    // コアエリア: 中央1.0→端0.5、オーバーラップエリア: 0.5→0.0
+    let angularFactor
+    if (distFromMid <= halfCore) {
+      angularFactor = 1.0 - (distFromMid / halfCore) * 0.5
+    } else {
+      const overlapDist = (distFromMid - halfCore) / OVERLAP
+      angularFactor = 0.5 * (1 - overlapDist)
+    }
+
     return {
-      id,
-      path: annularSectorPath(arc.innerR, arc.outerR, arc.startH, arc.endH),
-      color: NODE_COLORS[id],
-      points: node?.points ?? 0,
+      key: `${id}-${i}`,
+      path: annularSectorPath(arc.innerR, arc.outerR, s, e),
+      fill: `url(#rg-${id.toLowerCase()})`,
+      opacity: baseOpacity * angularFactor,
     }
   })
-)
+}
+
+const arcSlices = computed(() => {
+  const all = []
+  for (const [id, arc] of Object.entries(NODE_ARCS)) {
+    const node = props.nodes.find(n => n.id === id)
+    all.push(...makeArcSlices(id, arc, node?.points ?? 0))
+  }
+  return all
+})
+
+const n0Node = computed(() => props.nodes.find(n => n.id === 'N0'))
 
 const mapNodes = computed(() =>
   props.nodes
