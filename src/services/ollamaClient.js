@@ -10,30 +10,35 @@ export async function checkConnection() {
   }
 }
 
-export async function generateEthicsCode(nodes, onChunk) {
+export async function generateEthicsCode(nodes, onChunk, signal) {
   const prompt = buildPrompt(nodes)
   const response = await fetch(`${BASE_URL}/api/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: MODEL, prompt, stream: true }),
+    signal,
   })
 
   const reader = response.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    buffer += decoder.decode(value, { stream: true })
-    const lines = buffer.split('\n')
-    buffer = lines.pop()
-    for (const line of lines) {
-      if (!line.trim()) continue
-      const data = JSON.parse(line)
-      if (data.response) onChunk(data.response)
-      if (data.done) return
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop()
+      for (const line of lines) {
+        if (!line.trim()) continue
+        const data = JSON.parse(line)
+        if (data.response) onChunk(data.response)
+        if (data.done) return
+      }
     }
+  } finally {
+    reader.cancel()
   }
 }
 

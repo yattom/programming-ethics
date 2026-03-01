@@ -51,6 +51,18 @@ describe('generateEthicsCode', () => {
     expect(chunks).toEqual(['プログラマーとして、', '安全を最優先します。'])
   })
 
+  it('propagates abort signal and throws AbortError', async () => {
+    const abortError = Object.assign(new Error('The operation was aborted'), {
+      name: 'AbortError',
+    })
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortError))
+
+    const controller = new AbortController()
+    await expect(
+      generateEthicsCode([], () => {}, controller.signal),
+    ).rejects.toMatchObject({ name: 'AbortError' })
+  })
+
   it('stops reading when done flag is true', async () => {
     const lines = [
       JSON.stringify({ response: '最初のチャンク', done: true }),

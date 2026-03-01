@@ -112,18 +112,26 @@ watch(
 )
 
 let debounceTimer = null
+let abortController = null
 watch(
   () => map.nodes.map((n) => n.points).join(','),
   () => {
     if (!ollamaConnected.value) return
     clearTimeout(debounceTimer)
     debounceTimer = setTimeout(async () => {
+      if (abortController) abortController.abort()
+      abortController = new AbortController()
+      const signal = abortController.signal
       ethicsCodeLoading.value = true
       ethicsCode.value = ''
-      await generateEthicsCode(map.nodes, (chunk) => {
-        ethicsCode.value += chunk
-      })
-      ethicsCodeLoading.value = false
+      try {
+        await generateEthicsCode(map.nodes, (chunk) => {
+          ethicsCode.value += chunk
+        }, signal)
+        ethicsCodeLoading.value = false
+      } catch (e) {
+        if (e.name !== 'AbortError') ethicsCodeLoading.value = false
+      }
     }, 1000)
   }
 )
