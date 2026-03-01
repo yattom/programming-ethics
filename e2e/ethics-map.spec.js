@@ -66,6 +66,46 @@ test('UC007: Pノードをクリックすると説明パネルにPノードの�
   await expect(page.locator('[data-testid="node-description"]')).toContainText('利益優先')
 })
 
+test('E05: ollamaに接続できる場合、接続インジケーターに「接続中」が表示される', async ({ page }) => {
+  await page.route('http://localhost:11434/api/tags', (route) =>
+    route.fulfill({ status: 200, body: JSON.stringify({ models: [] }) }),
+  )
+  await page.goto('/')
+  await expect(page.locator('[data-testid="ollama-status"]')).toContainText('接続中')
+})
+
+test('E05b: ollamaに接続できない場合、接続インジケーターに「未接続」が表示される', async ({
+  page,
+}) => {
+  await page.route('http://localhost:11434/**', (route) => route.abort())
+  await page.goto('/')
+  await expect(page.locator('[data-testid="ollama-status"]')).toContainText('未接続')
+})
+
+test('E06: ポイント変更後に倫理綱領テキストが生成・表示される', async ({ page }) => {
+  await page.route('http://localhost:11434/api/tags', (route) =>
+    route.fulfill({ status: 200, body: JSON.stringify({ models: [] }) }),
+  )
+  const mockNdjson = [
+    JSON.stringify({ response: 'プログラマーとして、', done: false }),
+    JSON.stringify({ response: '安全を最優先します。', done: true }),
+  ].join('\n')
+  await page.route('http://localhost:11434/api/generate', (route) =>
+    route.fulfill({
+      status: 200,
+      headers: { 'Content-Type': 'application/x-ndjson' },
+      body: mockNdjson,
+    }),
+  )
+
+  await page.goto('/')
+  await page.locator('[data-testid="start-distribution"]').click()
+
+  await expect(page.locator('[data-testid="ethics-code"]')).toContainText('プログラマーとして、', {
+    timeout: 5000,
+  })
+})
+
 test('UC003: ポイントを配布してマップを作る', async ({ page }) => {
   await page.goto('/')
 
