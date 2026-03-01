@@ -93,13 +93,22 @@
           />
           <ellipse cx="-1.8" cy="-2.8" rx="1.6" ry="0.9" fill="white" fill-opacity="0.45" transform="rotate(-25,-1.8,-2.8)"/>
         </g>
+        <text
+          :data-testid="`node-label-${node.id}`"
+          text-anchor="middle"
+          dominant-baseline="hanging"
+          font-size="10"
+          fill="#333"
+          y="24"
+          style="pointer-events: none"
+        >{{ node.title }}</text>
       </g>
 
       <!-- 選択ノード近くのポイント操作ボタン -->
       <foreignObject
         v-if="distributing && selectedMapNode"
         :x="selectedMapNode.x - 35"
-        :y="selectedMapNode.y + 22"
+        :y="selectedMapNode.y + 40"
         width="72"
         height="30"
       >
@@ -126,6 +135,15 @@
         style="cursor: pointer"
         @click="$emit('node-selected', 'P')"
       >
+        <text
+          data-testid="node-label-P"
+          text-anchor="middle"
+          dominant-baseline="auto"
+          font-size="10"
+          fill="#333"
+          y="-108"
+          style="pointer-events: none"
+        >{{ pNode.title }}</text>
         <rect x="-45" y="-100" width="90" height="200" rx="12" :fill="pNode.color" stroke="#999" stroke-width="1.5" />
         <template v-if="distributing">
           <g

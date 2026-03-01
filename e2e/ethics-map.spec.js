@@ -60,6 +60,16 @@ test('UC006: トークンをクリックするとポイントが減る', async (
   await expect(page.locator('[data-testid="p-points"]')).toContainText('10')
 })
 
+test('UC008: 各ノードにラベルが表示される', async ({ page }) => {
+  await page.goto('/')
+  // 通常ノードはラベルがノードの下に表示される
+  await expect(page.locator('[data-testid="node-label-N0"]')).toBeVisible()
+  await expect(page.locator('[data-testid="node-label-N0"]')).toContainText('倫理的考慮')
+  await expect(page.locator('[data-testid="node-label-N1-1"]')).toContainText('安全性')
+  // Pノードはラベルがノードの上に表示される
+  await expect(page.locator('[data-testid="node-label-P"]')).toContainText('利益優先')
+})
+
 test('UC007: Pノードをクリックすると説明パネルにPノードのタイトルが表示される', async ({ page }) => {
   await page.goto('/')
   await page.locator('[data-testid="node-P"]').click()
