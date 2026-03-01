@@ -1,8 +1,14 @@
 <template>
   <div class="controls">
-    <div class="p-node-info">
-      <span>P ポイント: </span>
-      <span data-testid="p-points">{{ pPoints }}</span>
+    <div class="share-section">
+      <input
+        data-testid="user-name"
+        type="text"
+        :value="userName"
+        @input="$emit('update:userName', $event.target.value)"
+        placeholder="あなたの名前"
+      />
+      <button data-testid="copy-url" @click="onCopyUrl">{{ copyLabel }}</button>
     </div>
 
     <template v-if="!distributing">
@@ -12,16 +18,6 @@
     <template v-else>
       <button data-testid="add-point-to-p" @click="$emit('add-to-p')">ポイント追加 (+5)</button>
       <button data-testid="reset" @click="showConfirm = true">リセット</button>
-
-      <div class="share-section">
-        <input
-          data-testid="user-name"
-          type="text"
-          v-model="userName"
-          placeholder="あなたの名前"
-        />
-        <button data-testid="copy-url" @click="onCopyUrl">{{ copyLabel }}</button>
-      </div>
     </template>
 
     <div v-if="showConfirm" class="confirm-dialog">
@@ -36,13 +32,12 @@
 import { ref } from 'vue'
 
 defineProps({
-  pPoints: { type: Number, required: true },
   distributing: { type: Boolean, required: true },
+  userName: { type: String, default: '' },
 })
 
-const emit = defineEmits(['start', 'add-to-p', 'reset', 'copy-url'])
+const emit = defineEmits(['start', 'add-to-p', 'reset', 'copy-url', 'update:userName'])
 const showConfirm = ref(false)
-const userName = ref('')
 const copyLabel = ref('URLをコピー')
 
 function onConfirmReset() {
@@ -51,7 +46,7 @@ function onConfirmReset() {
 }
 
 function onCopyUrl() {
-  emit('copy-url', userName.value)
+  emit('copy-url')
   copyLabel.value = 'コピーしました！'
   setTimeout(() => { copyLabel.value = 'URLをコピー' }, 2000)
 }

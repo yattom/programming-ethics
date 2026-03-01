@@ -78,8 +78,8 @@ test('UC003: ポイントを配布してマップを作る', async ({ page }) =>
   await page.locator('[data-testid="add-point"]').click()
   await expect(page.locator('[data-testid="node-N0"]')).toContainText('1')
 
-  // リセットで全ポイントが0に戻る
+  // リセットで全ポイントが0に戻り、配布前の状態に戻る
   await page.locator('[data-testid="reset"]').click()
   await page.locator('[data-testid="confirm-reset"]').click()
-  await expect(page.locator('[data-testid="p-points"]')).toContainText('0')
+  await expect(page.locator('[data-testid="start-distribution"]')).toBeVisible()
 })
