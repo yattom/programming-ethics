@@ -22,12 +22,16 @@
 src/
   model/
     EthicsMap.js        # マップのロジック (ノード構造、ポイント割り振りルール)
+  services/
+    ollamaClient.js     # ollama REST API の呼び出し (接続確認・テキスト生成)
   components/
     EthicsMapView.vue   # マップ全体の描画 (同心円、ノード配置)
     NodeView.vue        # 個々のノードの描画とインタラクション
     NodeDescription.vue # 選択中ノードの説明表示
     PNodeView.vue       # Pノードの描画
     PointControls.vue   # ポイント配布開始、リセット、Pノード追加ボタン
+    OllamaStatus.vue    # ollama接続状態インジケーター
+    EthicsCodeView.vue  # 生成された倫理綱領テキストの表示
   App.vue               # ルートコンポーネント
   main.js
 ```
@@ -57,9 +61,16 @@ src/
 
 ## AI 連携 (オプション)
 
-- ollama の REST API をブラウザから直接呼び出す
-- ユーザーのポイント配分を入力として倫理綱領テキストを生成
-- AI が利用不可の場合は UI 上で非表示 or 無効化
+- ollama の REST API (`http://localhost:11434`) をブラウザから直接呼び出す
+- 使用モデル: `gemma3:27b`
+- **接続確認**: `GET /api/tags` を用いてollamaの稼働を確認する。アプリ起動時に実行し、結果を接続インジケーターに反映する
+- **倫理綱領テキスト生成**:
+  - ポイント配分が変わるたびに自動でリクエストを送信する (連続変更によるリクエスト過多を避けるため debounce を適用)
+  - プロンプトに各ノードの名称とポイント配分を含め、日本語の倫理綱領テキストを要求する
+  - ollama のストリーミングレスポンス (`stream: true`) を利用してリアルタイムにテキストを表示する
+  - 生成中はローディングインジケーターを表示する
+- AI が利用不可の場合: 接続インジケーターに未接続を表示し、倫理綱領テキスト生成エリアを非表示にする
+- `ollamaClient.js` に接続確認・テキスト生成のロジックをカプセル化する
 
 ## URL 共有
 
