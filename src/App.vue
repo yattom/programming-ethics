@@ -1,6 +1,9 @@
 <template>
   <main class="app">
-    <h1>プログラマー{{ userName }}の倫理</h1>
+    <div class="app-header">
+      <h1>プログラマー{{ userName }}の倫理</h1>
+      <OllamaStatus :connected="ollamaConnected" />
+    </div>
     <div class="layout">
       <EthicsMapView
         :nodes="map.nodes"
@@ -20,6 +23,11 @@
           @reset="reset"
           @copy-url="copyUrl"
         />
+        <EthicsCodeView
+          v-if="ollamaConnected"
+          :text="ethicsCode"
+          :loading="ethicsCodeLoading"
+        />
       </div>
     </div>
   </main>
@@ -29,15 +37,21 @@
 import { reactive, ref, computed, watch, onMounted } from 'vue'
 import { EthicsMap } from './model/EthicsMap.js'
 import { encodeMapState, decodeMapState } from './model/mapUrl.js'
+import { checkConnection, generateEthicsCode } from './services/ollamaClient.js'
 import EthicsMapView from './components/EthicsMapView.vue'
 import NodeDescription from './components/NodeDescription.vue'
 import PointControls from './components/PointControls.vue'
+import OllamaStatus from './components/OllamaStatus.vue'
+import EthicsCodeView from './components/EthicsCodeView.vue'
 
 const map = reactive(new EthicsMap())
 const selectedNodeId = ref(null)
 const distributing = ref(false)
 const errorMessage = ref(null)
 const userName = ref('')
+const ollamaConnected = ref(false)
+const ethicsCode = ref('')
+const ethicsCodeLoading = ref(false)
 
 const pNode = computed(() => map.nodes.find(n => n.id === 'P'))
 const selectedNode = computed(() =>
@@ -97,14 +111,41 @@ watch(
   }
 )
 
-onMounted(() => {
+let debounceTimer = null
+let abortController = null
+watch(
+  () => map.nodes.map((n) => n.points).join(','),
+  () => {
+    if (!ollamaConnected.value) return
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(async () => {
+      if (abortController) abortController.abort()
+      abortController = new AbortController()
+      const signal = abortController.signal
+      ethicsCodeLoading.value = true
+      ethicsCode.value = ''
+      try {
+        await generateEthicsCode(map.nodes, (chunk) => {
+          ethicsCode.value += chunk
+        }, signal)
+        ethicsCodeLoading.value = false
+      } catch (e) {
+        if (e.name !== 'AbortError') ethicsCodeLoading.value = false
+      }
+    }, 1000)
+  }
+)
+
+onMounted(async () => {
+  ollamaConnected.value = await checkConnection()
+
   const qs = location.search.slice(1)
   if (!qs) return
   const { name, pPoints, nodePoints } = decodeMapState(qs)
   userName.value = name
-  map.nodes.find(n => n.id === 'P').points = pPoints
+  map.nodes.find((n) => n.id === 'P').points = pPoints
   for (const [id, pts] of Object.entries(nodePoints)) {
-    map.nodes.find(n => n.id === id).points = pts
+    map.nodes.find((n) => n.id === id).points = pts
   }
   distributing.value = true
 })
@@ -113,6 +154,15 @@ onMounted(() => {
 <style scoped>
 .app {
   padding: 1rem;
+}
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.app-header h1 {
+  margin: 0;
 }
 .layout {
   display: flex;
