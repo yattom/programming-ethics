@@ -44,12 +44,11 @@ export async function generateEthicsCode(nodes, onChunk, signal) {
 
 function buildPrompt(nodes) {
   const activeNodes = nodes
-    .filter((n) => n.id !== 'P' && n.points > 0)
     .map((n) => `- ${n.title}: ${n.points}ポイント`)
     .join('\n')
 
   return `以下はプログラマーの倫理マップにおける私のポイント配分です：
-${activeNodes || '(ポイントが割り振られていません)'}
+${activeNodes}
 
 このポイント配分をもとに、私（プログラマー）が大切にしている価値観を表現した倫理綱領テキストを日本語で200字程度で生成してください。「私は〜」という一人称で書いてください。`
 }
