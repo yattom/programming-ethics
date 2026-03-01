@@ -23,6 +23,13 @@ describe('mapUrl', () => {
     expect(qs).toContain('p=')
   })
 
+  it('ptsパラメーターの区切り文字はURLエンコード不要な文字を使う', () => {
+    const qs = encodeMapState('やっとむ', sampleNodes)
+    const ptsValue = new URLSearchParams(qs).get('pts')
+    expect(ptsValue).not.toContain('%')
+    expect(ptsValue).toBe('2.1.0.0.0.0.0.0.0.0')
+  })
+
   it('クエリ文字列からマップ状態を復元できる', () => {
     const qs = encodeMapState('やっとむ', sampleNodes)
     const { name, pPoints, nodePoints } = decodeMapState(qs)
