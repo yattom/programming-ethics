@@ -4,6 +4,12 @@
     <template v-if="node">
       <h2>{{ node.title }}</h2>
       <p>{{ node.description }}</p>
+      <template v-if="node.examples && node.examples.length > 0">
+        <p><strong>例</strong></p>
+        <ul>
+          <li v-for="(ex, i) in node.examples" :key="i">{{ ex }}</li>
+        </ul>
+      </template>
     </template>
     <template v-else>
       <p>ノードをクリックすると説明が表示されます。</p>

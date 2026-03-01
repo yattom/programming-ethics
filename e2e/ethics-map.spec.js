@@ -9,7 +9,7 @@ test('UC002: ノードをクリックすると説明が表示される', async (
   await page.goto('/')
   await page.locator('[data-testid="node-N1-1"]').click()
   await expect(page.locator('[data-testid="node-description"]')).toBeVisible()
-  await expect(page.locator('[data-testid="node-description"]')).toContainText('Safety')
+  await expect(page.locator('[data-testid="node-description"]')).toContainText('安全性')
 })
 
 test('UC004: マップ状態をURLで保存・共有できる', async ({ page }) => {
