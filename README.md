@@ -18,3 +18,21 @@
 - バックエンドはなく、利用者のPC上で単体で起動したり、AWSなどに静的Webアプリとしてデプロイできます
 - (TBD)ローカルPC上の生成AIを用いて、説明やコメントを提供します
 
+## 動かし方
+
+初期設定
+```
+pnpm install
+pnpm playwright install
+```
+
+ローカル実行
+```
+pnpm dev
+```
+
+テスト実行
+```
+pnpm test:unit
+pnpm test:e2e
+```
