@@ -36,7 +36,7 @@ function generateAllPatterns() {
   const patterns = []
   for (const P of [0, 1]) {
     for (const N0 of [0, 1]) {
-      const n0Children = N0 === 0 ? [[0, 0, 0, 0, 0, 0, 0, 0]] : null
+      const n0Children = N0 === 0 ? [[0, 0, 0, 0, 0, 0, 0, 0, 0]] : null
       const n1n2Combos = n0Children ?? generateN1N2Combos()
       for (const [N11, N12, N13, N21, N22, N23, N24, N25, N26] of n1n2Combos) {
         const pattern = { P, N0, N11, N12, N13, N21, N22, N23, N24, N25, N26 }
