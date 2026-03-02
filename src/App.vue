@@ -24,7 +24,6 @@
           @copy-url="copyUrl"
         />
         <EthicsCodeView
-          v-if="ollamaConnected"
           :text="ethicsCode"
           :loading="ethicsCodeLoading"
         />
@@ -38,6 +37,7 @@ import { reactive, ref, computed, watch, onMounted } from 'vue'
 import { EthicsMap } from './model/EthicsMap.js'
 import { encodeMapState, decodeMapState } from './model/mapUrl.js'
 import { checkConnection, generateEthicsCode } from './services/ollamaClient.js'
+import { getFallbackResponse } from './services/staticResponses.js'
 import EthicsMapView from './components/EthicsMapView.vue'
 import NodeDescription from './components/NodeDescription.vue'
 import PointControls from './components/PointControls.vue'
@@ -116,7 +116,10 @@ let abortController = null
 watch(
   () => map.nodes.map((n) => n.points).join(','),
   () => {
-    if (!ollamaConnected.value) return
+    if (!ollamaConnected.value) {
+      ethicsCode.value = getFallbackResponse(map.nodes) ?? ''
+      return
+    }
     clearTimeout(debounceTimer)
     debounceTimer = setTimeout(async () => {
       if (abortController) abortController.abort()
@@ -138,6 +141,9 @@ watch(
 
 onMounted(async () => {
   ollamaConnected.value = await checkConnection()
+  if (!ollamaConnected.value) {
+    ethicsCode.value = getFallbackResponse(map.nodes) ?? ''
+  }
 
   const qs = location.search.slice(1)
   if (!qs) return
